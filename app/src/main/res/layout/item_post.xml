@@ -1,0 +1,26 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="150dp"
+    android:id="@+id/cardViewPostInCate"
+    android:layout_marginTop="10dp"
+    android:layout_marginLeft="20dp"
+    android:layout_height="120dp"
+    android:background="@drawable/border_img"
+    >
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/imgPostInCategory"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            />
+
+    </RelativeLayout>
+
+
+
+
+</androidx.cardview.widget.CardView>
