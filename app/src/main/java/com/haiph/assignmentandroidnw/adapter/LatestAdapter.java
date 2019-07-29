@@ -52,10 +52,11 @@ public class LatestAdapter extends RecyclerView.Adapter<LatestAdapter.ViewHolder
         Example example=examplesList.get(position);
 
         holder.tvTitleLatest.setText(example.getTitle().getRendered());
-//        Glide
-//                .with(context)
-//                .load(example.getEmbedded().getWpFeaturedmedia().get(0).getSourceUrl())
-//                .into(holder.imgLatest);
+        String url = example.getEmbedded().getWpFeaturedmedia().get(position).getSourceUrl();
+        Glide
+                .with(context)
+                .load(url)
+                .into(holder.imgLatest);
         holder.cardViewLatest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -73,14 +74,14 @@ public class LatestAdapter extends RecyclerView.Adapter<LatestAdapter.ViewHolder
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         CardView cardViewLatest;
-      //  ImageView imgLatest;
+       ImageView imgLatest;
         TextView tvTitleLatest;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             cardViewLatest=itemView.findViewById(R.id.cardViewLatest);
 
-          //  imgLatest=itemView.findViewById(R.id.imgLatest);
+          imgLatest=itemView.findViewById(R.id.imgLatest);
 
             tvTitleLatest=itemView.findViewById(R.id.tvTitleLatest);
         }
