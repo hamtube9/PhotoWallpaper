@@ -2,6 +2,8 @@ package com.haiph.assignmentandroidnw;
 
 import android.os.Bundle;
 
+import com.github.ybq.android.spinkit.sprite.Sprite;
+import com.github.ybq.android.spinkit.style.FoldingCube;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -23,10 +25,13 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.Menu;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -45,8 +50,9 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         if (toolbar != null){
             toolbar.setBackgroundDrawable(getResources().getDrawable(R.drawable.gradient_toolbar));
-            toolbar.setTitle("Wallpaper");
+           getSupportActionBar().setTitle("Wallpaper");
         }
+
 
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -56,9 +62,18 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+
+        LatestFragment latestFragment=new LatestFragment();
+        loadFragment(latestFragment);
     }
 
-
+    private void loadFragment(Fragment fragment) {
+        // load fragment
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frameLayout, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
 
 
     @Override

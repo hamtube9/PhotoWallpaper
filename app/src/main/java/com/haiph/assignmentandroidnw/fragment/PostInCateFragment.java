@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,6 +27,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.github.ybq.android.spinkit.sprite.Sprite;
+import com.github.ybq.android.spinkit.style.CubeGrid;
+import com.github.ybq.android.spinkit.style.FadingCircle;
+import com.github.ybq.android.spinkit.style.FoldingCube;
 import com.haiph.assignmentandroidnw.ImageDetailsActivity;
 import com.haiph.assignmentandroidnw.R;
 import com.haiph.assignmentandroidnw.Retrofit;
@@ -62,6 +67,8 @@ public class PostInCateFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_post_in_category, container, false);
         rcViewPost=view.findViewById(R.id.rcViewPost);
+
+
         rcViewPost.setLayoutManager(new GridLayoutManager(getActivity(),2));
         final ArrayList<GetPost> examplesList = new ArrayList<>();
 
@@ -75,6 +82,7 @@ public class PostInCateFragment extends Fragment {
                 Intent intent=new Intent(getActivity(),ImageDetailsActivity.class);
                 intent.putExtra("img",getPost.getSourceUrl());
                 startActivity(intent);
+
             }
 
 
@@ -93,9 +101,12 @@ public class PostInCateFragment extends Fragment {
 
     private void getPost() {
 
-        Retrofit.getInstance().getMedia().enqueue(new Callback<List<GetPost>>() {
+        Bundle bundle = getArguments();
+        String id = bundle.getString("id");
+        Retrofit.getInstance().getMedia(id).enqueue(new Callback<List<GetPost>>() {
             @Override
             public void onResponse(Call<List<GetPost>> call, Response<List<GetPost>> response) {
+
                 if (response.code()==200 && response.body()!= null) {
                     adapter.updateData(response.body());
                 }
@@ -103,6 +114,7 @@ public class PostInCateFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<GetPost>> call, Throwable t) {
+
                 Log.e("err", t.getMessage());
             }
         });
