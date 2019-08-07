@@ -83,7 +83,7 @@ public class LatestFragment extends Fragment {
         recyclerView.setAdapter(adapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        getPost();
+        getPost(currentPage);
 
         final LinearLayoutManager linearLayout = (LinearLayoutManager) recyclerView.getLayoutManager();
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -97,7 +97,7 @@ public class LatestFragment extends Fragment {
                 totalItemCount = Integer.parseInt(String.valueOf(recyclerView.getAdapter().getItemCount()));
                 if (!recyclerView.canScrollVertically(1) && newState == recyclerView.SCROLL_STATE_IDLE) {
                     currentPage++;
-                    getPost();
+                    getPost(currentPage);
                 }
 
             }
@@ -106,7 +106,7 @@ public class LatestFragment extends Fragment {
         return view;
     }
 
-    private void getPost() {
+    private void getPost(int currentPage) {
 
         Retrofit.getInstance().getLastest("").enqueue(new Callback<List<Example>>() {
             @Override

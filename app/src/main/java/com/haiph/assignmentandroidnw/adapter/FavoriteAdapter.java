@@ -16,12 +16,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.haiph.assignmentandroidnw.R;
 import com.haiph.assignmentandroidnw.fragment.FavoriteFragment;
+import com.haiph.assignmentandroidnw.model.Favorite;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder> {
-    List list;
+    ArrayList<Favorite> list;
+
+    public FavoriteAdapter(ArrayList<Favorite> list, Context context) {
+        this.list = list;
+        this.context = context;
+    }
+
     Context context;
     @NonNull
     @Override
@@ -32,11 +39,8 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        list = new ArrayList();
-        FavoriteFragment fragment = new FavoriteFragment();
-        Bundle b = fragment.getArguments();
-        String url = b.getString("img");
-        Glide.with(context).load(url).into(holder.imgFavorite);
+
+Glide.with(context).load(list.get(position).getUrl()).into(holder.imgFavorite);
 
 
 

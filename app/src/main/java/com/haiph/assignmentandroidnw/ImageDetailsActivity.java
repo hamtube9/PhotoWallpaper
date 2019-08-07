@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -37,7 +38,10 @@ import com.bumptech.glide.request.Request;
 import com.bumptech.glide.request.target.SizeReadyCallback;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.haiph.assignmentandroidnw.database.FavoriteDAO;
 import com.haiph.assignmentandroidnw.fragment.FavoriteFragment;
+import com.haiph.assignmentandroidnw.model.Favorite;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -45,13 +49,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 
 import ir.siaray.downloadmanagerplus.classes.Downloader;
 import ir.siaray.downloadmanagerplus.interfaces.DownloadListener;
 
 public class ImageDetailsActivity extends AppCompatActivity {
-    private AlertDialog alertDialog ;
+    private AlertDialog alertDialog;
     private FloatingActionButton fab, fabShare, fabSave, fabLike, fabSetImage;
     boolean showbutton;
     private static final int REQUEST_CODE = 1;
@@ -60,24 +65,20 @@ public class ImageDetailsActivity extends AppCompatActivity {
     private Bitmap bitmap;
     String url;
     DownloadManager downloadManager;
-    String selectedImagePath;
+
     private static final int PERMISSION_REQUEST_CODE = 1000;
+
+    ArrayList<String> arrayList;
+    SharedPreferences sharedPreferences;
+    FavoriteDAO favoriteDAO;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_details);
-        final Intent intent=getIntent();
+        initView();
 
-
-        url = intent.getStringExtra("img");
-
-        fab = findViewById(R.id.fabImage);
-        imgDetail = findViewById(R.id.imgDetail);
-        fabLike = findViewById(R.id.fabLike);
-
-
-        fabSave = findViewById(R.id.fabSave);
         fabSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -96,55 +97,54 @@ public class ImageDetailsActivity extends AppCompatActivity {
                         alertDialog.dismiss();
                     }
                 });
-
                 alertDialog.show();
             }
         });
 
-
-        fabSetImage = findViewById(R.id.fabSetImage);
         fabSetImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
-                   setWallpaper();
+                setWallpaper();
             }
         });
 
-        fabShare = findViewById(R.id.fabShare);
+
         fabShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            getShare();
+                getShare();
             }
         });
 
-
-
-        Glide.with(ImageDetailsActivity.this).load(url).into(imgDetail);
 
         fabLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                favoriteDAO = new FavoriteDAO(ImageDetailsActivity.this);
+                Favorite favorite = new Favorite(url);
+                try {
+                    if (favoriteDAO.insertURL(favorite) > 0) {
+                        Toast.makeText(getApplicationContext(), "Like",
+                                Toast.LENGTH_SHORT).show();
+                        //startActivity(new Intent(DetailPhotoActivity.this, FavoriteFragment.class));
+                        finish();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Fail",
+                                Toast.LENGTH_SHORT).show();
+                    }
 
-
-
-
-
+                } catch (Exception ex) {
+                    Log.e("Error", ex.toString());
+                }
             }
         });
-
-
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (showbutton == false) {
-
                     fabShow();
-
                     showbutton = true;
                 } else {
                     fabHide();
@@ -157,18 +157,29 @@ public class ImageDetailsActivity extends AppCompatActivity {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(new String[]{
                         Manifest.permission.WRITE_EXTERNAL_STORAGE
-
                 }, PERMISSION_REQUEST_CODE);
             }
 
-
     }
 
-    private void fabShow() {
+    private void initView() {
+        final Intent intent = getIntent();
+        arrayList=new ArrayList<>();
+        url = intent.getStringExtra("img");
+        fabSetImage = findViewById(R.id.fabSetImage);
+        fab = findViewById(R.id.fabImage);
+        imgDetail = findViewById(R.id.imgDetail);
+        fabLike = findViewById(R.id.fabLike);
+        sharedPreferences = getSharedPreferences("Lmao", MODE_PRIVATE);
+        fabSave = findViewById(R.id.fabSave);
+        Glide.with(ImageDetailsActivity.this).load(url).into(imgDetail);
+        fabShare = findViewById(R.id.fabShare);
+    }
 
+
+    private void fabShow() {
         fabSetImage.show();
         fabSave.show();
-
         fabLike.show();
         fabShare.show();
     }
@@ -176,7 +187,6 @@ public class ImageDetailsActivity extends AppCompatActivity {
     private void fabHide() {
         fabSetImage.hide();
         fabSave.hide();
-
         fabLike.hide();
         fabShare.hide();
     }
@@ -198,15 +208,20 @@ public class ImageDetailsActivity extends AppCompatActivity {
         }
     }
 
-    public void StartDownload(){
 
-
+    private void saveFavoriteImage() {
+        arrayList.add(url);
+        Gson gson = new Gson();
+        String json = gson.toJson(arrayList);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("Link", json);
+        editor.commit();
     }
 
     private Uri getLocalImageBitmapUri(ImageView imageView) {
         Drawable drawable = imageView.getDrawable();
         Bitmap bmp = null;
-        if (drawable instanceof BitmapDrawable){
+        if (drawable instanceof BitmapDrawable) {
             bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
         } else {
             return null;
@@ -214,7 +229,7 @@ public class ImageDetailsActivity extends AppCompatActivity {
         // Store image to default external storage directory
         Uri bmpUri = null;
         try {
-            File file =  new File(Environment.getExternalStoragePublicDirectory(
+            File file = new File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOWNLOADS), "share_image_" + System.currentTimeMillis() + ".png");
             file.getParentFile().mkdirs();
             FileOutputStream out = new FileOutputStream(file);
@@ -268,14 +283,14 @@ public class ImageDetailsActivity extends AppCompatActivity {
 
     }
 
-    public void setWallpaper(){
-        downloadManager= (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+    public void setWallpaper() {
+        downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         Uri uri = Uri.parse(url);
         DownloadManager.Request request = new DownloadManager.Request(uri);
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         Long reference = downloadManager.enqueue(request);
 
-        Picasso.get().load(url).into(new Target(){
+        Picasso.get().load(url).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 WallpaperManager wallpaperManager = WallpaperManager.getInstance(ImageDetailsActivity.this);

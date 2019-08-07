@@ -103,7 +103,7 @@ public class PostInCateFragment extends Fragment {
 
         Bundle bundle = getArguments();
         String id = bundle.getString("id");
-        Retrofit.getInstance().getMedia(id).enqueue(new Callback<List<GetPost>>() {
+        Retrofit.getInstance().getMedia(id,1,1000).enqueue(new Callback<List<GetPost>>() {
             @Override
             public void onResponse(Call<List<GetPost>> call, Response<List<GetPost>> response) {
 

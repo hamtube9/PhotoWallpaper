@@ -15,7 +15,7 @@ public interface ServicerRetrofit {
 
 
     @GET("wp-json/wp/v2/media")
-    Call<List<GetPost>> getMedia( @Query("parent") String parent);
+    Call<List<GetPost>> getMedia( @Query("parent") String parent,@Query("page") int page, @Query("per_page") int perpage);
 
     @GET("wp-json/wp/v2/categories")
     Call<List<Categories>> getCate(@Query("page") String page, @Query("per_page") String per_page);
